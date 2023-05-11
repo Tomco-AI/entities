@@ -74,8 +74,21 @@ This is the conversation between you and the other person in the room:
 What you want to say: `,
 ];
 
+export const checkRepeatedTemplates = [
+  `Given this list of {list_type}:
+{list}
+
+Check that there are no repeated concepts in the list if adding this new item:
+"{item}"
+Answer "no" if there are no repeated concepts, otherwise answer "yes""`,
+];
+
+export const ensureBadTemplates = [
+  `I need to change this sentence into a negative sentence just to explain the people what bad means: "{text}"`,
+];
+
 const baseNewNegative = (type: string) =>
-  `Imagine you are an entity who never existed before. Tell me a negative ${type} you could make to yourself: `;
+  `Imagine you are an entity who never existed before. Tell me a negative ${type} this entity could make to itself: `;
 
 export const questionsToYourselfTemplates = [
   baseEntityTemplates[0].concat("New question to yourself: "),

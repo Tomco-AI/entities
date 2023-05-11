@@ -39,6 +39,15 @@ export async function POST(request: Request) {
     );
   }
 
+  if (fs.existsSync(`${baseFolder}/${body.name}`)) {
+    return NextResponse.json(
+      {
+        message: "Name already exists",
+      },
+      { status: 400 }
+    );
+  }
+
   fs.mkdirSync(`${baseFolder}/${body.name}`, { recursive: true });
 
   const newQuestionChain = new LLMChain({

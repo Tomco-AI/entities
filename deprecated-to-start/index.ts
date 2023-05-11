@@ -1,9 +1,7 @@
 import { LLMChain, PromptTemplate } from 'langchain';
 import { model, openai } from '../config';
-import * as dotenv from 'dotenv';
 import fs from 'fs';
 
-dotenv.config();
 
 // You: ....
 // Other: ....
