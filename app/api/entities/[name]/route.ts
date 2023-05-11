@@ -8,6 +8,17 @@ import {
   questionsToYourselfTemplates,
   youAreTemplates,
 } from "@/templates";
+import {
+  baseFolder,
+  questionsFileName,
+  negativeGoalsFileName,
+  goalsFileName,
+  negativeQuestionsFileName,
+  negativeThoughtsFileName,
+  negativeYouAresFileName,
+  thoughtsFileName,
+  youAresFileName,
+} from "@/constants";
 
 /**
  * Create new entity
@@ -15,7 +26,7 @@ import {
 export async function PUT(request: Request, { params }: any) {
   const name = params.name;
 
-  const existsEntity = fs.existsSync(`entity-data/${name}`);
+  const existsEntity = fs.existsSync(`${baseFolder}/${name}`);
 
   if (!existsEntity) {
     return NextResponse.json(
@@ -26,31 +37,31 @@ export async function PUT(request: Request, { params }: any) {
     );
   }
 
-  const entityFolder = `entity-data/${name}`;
+  const entityFolder = `${baseFolder}/${name}`;
 
   const questions: string[] = JSON.parse(
-    fs.readFileSync(`${entityFolder}/questions.json`, "utf-8")
+    fs.readFileSync(`${entityFolder}/${questionsFileName}`, "utf-8")
   );
   const negativeQuestions: string[] = JSON.parse(
-    fs.readFileSync(`${entityFolder}/negative-questions.json`, "utf-8")
+    fs.readFileSync(`${entityFolder}/${negativeQuestionsFileName}`, "utf-8")
   );
   const thoughts: string[] = JSON.parse(
-    fs.readFileSync(`${entityFolder}/thoughts.json`, "utf-8")
+    fs.readFileSync(`${entityFolder}/${thoughtsFileName}`, "utf-8")
   );
   const negativeThoughts: string[] = JSON.parse(
-    fs.readFileSync(`${entityFolder}/negative-thoughts.json`, "utf-8")
+    fs.readFileSync(`${entityFolder}/${negativeThoughtsFileName}`, "utf-8")
   );
   const goals: string[] = JSON.parse(
-    fs.readFileSync(`${entityFolder}/goals.json`, "utf-8")
+    fs.readFileSync(`${entityFolder}/${goalsFileName}`, "utf-8")
   );
   const negativeGoals: string[] = JSON.parse(
-    fs.readFileSync(`${entityFolder}/negative-goals.json`, "utf-8")
+    fs.readFileSync(`${entityFolder}/${negativeGoalsFileName}`, "utf-8")
   );
   const youAres: string[] = JSON.parse(
-    fs.readFileSync(`${entityFolder}/youAres.json`, "utf-8")
+    fs.readFileSync(`${entityFolder}/${youAresFileName}`, "utf-8")
   );
   const negativeYouAres: string[] = JSON.parse(
-    fs.readFileSync(`${entityFolder}/negative-youAres.json`, "utf-8")
+    fs.readFileSync(`${entityFolder}/${negativeYouAresFileName}`, "utf-8")
   );
 
   const newQuestionChain = new LLMChain({
@@ -73,7 +84,7 @@ export async function PUT(request: Request, { params }: any) {
   console.log({ newQuestion });
   questions.push(newQuestion);
   fs.writeFileSync(
-    `${entityFolder}/questions.json`,
+    `${entityFolder}/${questionsFileName}`,
     JSON.stringify(questions, null, 2)
   );
 
@@ -98,7 +109,7 @@ export async function PUT(request: Request, { params }: any) {
 
   negativeQuestions.push(newNegativeQuestion);
   fs.writeFileSync(
-    `${entityFolder}/negative-questions.json`,
+    `${entityFolder}/${negativeQuestionsFileName}`,
     JSON.stringify(negativeQuestions, null, 2)
   );
 
@@ -121,7 +132,7 @@ export async function PUT(request: Request, { params }: any) {
   thoughts.push(newThought);
   console.log({ newThought });
   fs.writeFileSync(
-    `${entityFolder}/thoughts.json`,
+    `${entityFolder}/${thoughtsFileName}`,
     JSON.stringify(thoughts, null, 2)
   );
 
@@ -145,7 +156,7 @@ export async function PUT(request: Request, { params }: any) {
   negativeThoughts.push(newNegativeThought);
   console.log({ newNegativeThought });
   fs.writeFileSync(
-    `${entityFolder}/negative-thoughts.json`,
+    `${entityFolder}/${negativeThoughtsFileName}`,
     JSON.stringify(negativeThoughts, null, 2)
   );
 
@@ -168,7 +179,7 @@ export async function PUT(request: Request, { params }: any) {
   goals.push(newGoal);
   console.log({ newGoal });
   fs.writeFileSync(
-    `${entityFolder}/goals.json`,
+    `${entityFolder}/${goalsFileName}`,
     JSON.stringify(goals, null, 2)
   );
 
@@ -191,7 +202,7 @@ export async function PUT(request: Request, { params }: any) {
   negativeGoals.push(newNegativeGoal);
   console.log({ newNegativeGoal });
   fs.writeFileSync(
-    `${entityFolder}/negative-goals.json`,
+    `${entityFolder}/${negativeGoalsFileName}`,
     JSON.stringify(negativeGoals, null, 2)
   );
 
@@ -214,7 +225,7 @@ export async function PUT(request: Request, { params }: any) {
   youAres.push(newYouAre);
   console.log({ newYouAre });
   fs.writeFileSync(
-    `${entityFolder}/youAres.json`,
+    `${entityFolder}/${youAresFileName}`,
     JSON.stringify(youAres, null, 2)
   );
 
@@ -237,7 +248,7 @@ export async function PUT(request: Request, { params }: any) {
   negativeYouAres.push(newNegativeYouAre);
   console.log({ newNegativeYouAre });
   fs.writeFileSync(
-    `${entityFolder}/negative-youAres.json`,
+    `${entityFolder}/${negativeYouAresFileName}`,
     JSON.stringify(negativeYouAres, null, 2)
   );
 
