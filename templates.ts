@@ -88,7 +88,7 @@ export const ensureBadTemplates = [
 ];
 
 const baseNewNegative = (type: string) =>
-  `Imagine you are an entity who never existed before. Tell me a negative ${type} this entity could make to itself: `;
+  `New not positive ${type} to yourself (it is absolutely prohibited to create a positive answer): `;
 
 export const questionsToYourselfTemplates = [
   baseEntityTemplates[0].concat("New question to yourself: "),

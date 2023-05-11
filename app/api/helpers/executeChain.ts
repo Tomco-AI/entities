@@ -123,22 +123,25 @@ export const executeChain = async ({ list_type, entity_name }: Types) => {
     const newItem = (await chain.call(callArguments.callArgs)).text;
     const thisList = callArguments.lists[callArgKey];
 
-    console.log({ [list_type]: newItem });
-
     const checkRepeated = await checkRepeatedChain({
       list_type: "questions",
       list: thisList,
       item: newItem,
     });
 
-    if (!checkRepeated) {
+    const checkAIModelMessage = !!newItem.match(/ai language model/gi)?.length;
+
+    if (!checkRepeated && !checkAIModelMessage) {
+      console.log({ [list_type]: newItem });
       thisList.push(newItem);
       fs.writeFileSync(
         `${entityFolder}/${fileName}`,
         JSON.stringify(thisList, null, 2)
       );
-    } else {
+    } else if (checkRepeated && !checkAIModelMessage) {
       console.log(`Repeated ${list_type}: ${newItem}`);
+    } else {
+      console.log(`AI created a stupid answer on ${list_type}: ${newItem}`);
     }
 
     return thisList;
