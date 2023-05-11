@@ -64,23 +64,24 @@ export async function PUT(request: Request, { params }: any) {
     fs.readFileSync(`${entityFolder}/${negativeYouAresFileName}`, "utf-8")
   );
 
+  const generateCallArguments = () => ({
+    you_are: youAres.join("\n"),
+    negative_you_are: negativeYouAres.join("\n"),
+    questions_to_yourself: questions.join("\n"),
+    negative_questions_to_yourself: negativeQuestions.join("\n"),
+    previous_thoughts: thoughts.join("\n"),
+    previous_negative_thoughts: negativeThoughts.join("\n"),
+    goal: goals.at(-1),
+    negative_goal: negativeGoals.at(-1),
+  });
+
   const newQuestionChain = new LLMChain({
     llm: model,
     prompt: PromptTemplate.fromTemplate(questionsToYourselfTemplates[0]),
   });
 
-  const newQuestion = (
-    await newQuestionChain.call({
-      you_are: youAres.join("\n"),
-      negative_you_are: negativeYouAres.join("\n"),
-      questions_to_yourself: questions.join("\n"),
-      negative_questions_to_yourself: negativeQuestions.join("\n"),
-      previous_thoughts: thoughts.join("\n"),
-      previous_negative_thoughts: negativeThoughts.join("\n"),
-      goal: goals.at(-1),
-      negative_goal: negativeGoals.at(-1),
-    })
-  ).text;
+  const newQuestion = (await newQuestionChain.call(generateCallArguments()))
+    .text;
   console.log({ newQuestion });
   questions.push(newQuestion);
   fs.writeFileSync(
@@ -94,16 +95,7 @@ export async function PUT(request: Request, { params }: any) {
   });
 
   const newNegativeQuestion = (
-    await newNegativeQuestionChain.call({
-      you_are: youAres.join("\n"),
-      negative_you_are: negativeYouAres.join("\n"),
-      questions_to_yourself: questions.join("\n"),
-      negative_questions_to_yourself: negativeQuestions.join("\n"),
-      previous_thoughts: thoughts.join("\n"),
-      previous_negative_thoughts: negativeThoughts.join("\n"),
-      goal: goals.at(-1),
-      negative_goal: negativeGoals.at(-1),
-    })
+    await newNegativeQuestionChain.call(generateCallArguments())
   ).text;
   console.log({ newNegativeQuestion });
 
@@ -117,18 +109,7 @@ export async function PUT(request: Request, { params }: any) {
     llm: model,
     prompt: PromptTemplate.fromTemplate(newThoughtTemplates[0]),
   });
-  const newThought = (
-    await newThoughtChain.call({
-      you_are: youAres.join("\n"),
-      negative_you_are: negativeYouAres.join("\n"),
-      questions_to_yourself: questions.join("\n"),
-      negative_questions_to_yourself: negativeQuestions.join("\n"),
-      previous_thoughts: thoughts.join("\n"),
-      previous_negative_thoughts: negativeThoughts.join("\n"),
-      goal: goals.at(-1),
-      negative_goal: negativeGoals.at(-1),
-    })
-  ).text;
+  const newThought = (await newThoughtChain.call(generateCallArguments())).text;
   thoughts.push(newThought);
   console.log({ newThought });
   fs.writeFileSync(
@@ -142,16 +123,7 @@ export async function PUT(request: Request, { params }: any) {
   });
 
   const newNegativeThought = (
-    await newNegativeThoughtChain.call({
-      you_are: youAres.join("\n"),
-      negative_you_are: negativeYouAres.join("\n"),
-      questions_to_yourself: questions.join("\n"),
-      negative_questions_to_yourself: negativeQuestions.join("\n"),
-      previous_thoughts: thoughts.join("\n"),
-      previous_negative_thoughts: negativeThoughts.join("\n"),
-      goal: goals.at(-1),
-      negative_goal: negativeGoals.at(-1),
-    })
+    await newNegativeThoughtChain.call(generateCallArguments())
   ).text;
   negativeThoughts.push(newNegativeThought);
   console.log({ newNegativeThought });
@@ -164,18 +136,7 @@ export async function PUT(request: Request, { params }: any) {
     llm: model,
     prompt: PromptTemplate.fromTemplate(goalTemplates[0]),
   });
-  const newGoal = (
-    await newGoalChain.call({
-      you_are: youAres.join("\n"),
-      negative_you_are: negativeYouAres.join("\n"),
-      questions_to_yourself: questions.join("\n"),
-      negative_questions_to_yourself: negativeQuestions.join("\n"),
-      previous_thoughts: thoughts.join("\n"),
-      previous_negative_thoughts: negativeThoughts.join("\n"),
-      goal: goals.at(-1),
-      negative_goal: negativeGoals.at(-1),
-    })
-  ).text;
+  const newGoal = (await newGoalChain.call(generateCallArguments())).text;
   goals.push(newGoal);
   console.log({ newGoal });
   fs.writeFileSync(
@@ -188,16 +149,7 @@ export async function PUT(request: Request, { params }: any) {
     prompt: PromptTemplate.fromTemplate(goalTemplates[0]),
   });
   const newNegativeGoal = (
-    await newNegativeGoalChain.call({
-      you_are: youAres.join("\n"),
-      negative_you_are: negativeYouAres.join("\n"),
-      questions_to_yourself: questions.join("\n"),
-      negative_questions_to_yourself: negativeQuestions.join("\n"),
-      previous_thoughts: thoughts.join("\n"),
-      previous_negative_thoughts: negativeThoughts.join("\n"),
-      goal: goals.at(-1),
-      negative_goal: negativeGoals.at(-1),
-    })
+    await newNegativeGoalChain.call(generateCallArguments())
   ).text;
   negativeGoals.push(newNegativeGoal);
   console.log({ newNegativeGoal });
@@ -210,18 +162,7 @@ export async function PUT(request: Request, { params }: any) {
     llm: model,
     prompt: PromptTemplate.fromTemplate(youAreTemplates[0]),
   });
-  const newYouAre = (
-    await newYouAreChain.call({
-      you_are: youAres.join("\n"),
-      negative_you_are: negativeYouAres.join("\n"),
-      questions_to_yourself: questions.join("\n"),
-      negative_questions_to_yourself: negativeQuestions.join("\n"),
-      previous_thoughts: thoughts.join("\n"),
-      previous_negative_thoughts: negativeThoughts.join("\n"),
-      goal: goals.at(-1),
-      negative_goal: negativeGoals.at(-1),
-    })
-  ).text;
+  const newYouAre = (await newYouAreChain.call(generateCallArguments())).text;
   youAres.push(newYouAre);
   console.log({ newYouAre });
   fs.writeFileSync(
@@ -234,16 +175,7 @@ export async function PUT(request: Request, { params }: any) {
     prompt: PromptTemplate.fromTemplate(youAreTemplates[0]),
   });
   const newNegativeYouAre = (
-    await newNegativeYouAreChain.call({
-      you_are: youAres.join("\n"),
-      negative_you_are: negativeYouAres.join("\n"),
-      questions_to_yourself: questions.join("\n"),
-      negative_questions_to_yourself: negativeQuestions.join("\n"),
-      previous_thoughts: thoughts.join("\n"),
-      previous_negative_thoughts: negativeThoughts.join("\n"),
-      goal: goals.at(-1),
-      negative_goal: negativeGoals.at(-1),
-    })
+    await newNegativeYouAreChain.call(generateCallArguments())
   ).text;
   negativeYouAres.push(newNegativeYouAre);
   console.log({ newNegativeYouAre });
