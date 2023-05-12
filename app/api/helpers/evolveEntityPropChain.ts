@@ -19,13 +19,15 @@ import {
   negativeGoalTemplates,
   youAreTemplates,
   negativeYouAreTemplates,
+  ensureBadTemplates,
 } from "@/templates";
 import fs from "fs";
 import { LLMChain, PromptTemplate } from "langchain";
 import { generateCallArguments } from "./generateCallArguments";
 import { checkRepeatedChain } from "./checkRepeatedChain";
+import { ensureNegativeChain } from "./ensureNegativeChain";
 
-export type ListTypes =
+export type EntityPropNamesType =
   | "questions"
   | "negative_questions"
   | "thoughts"
@@ -36,12 +38,12 @@ export type ListTypes =
   | "negative_you_ares";
 
 interface Types {
-  list_type: ListTypes;
+  entity_prop_name: EntityPropNamesType;
   entity_name: string;
 }
 
-const getCallArgKey = (list_type: ListTypes) => {
-  switch (list_type) {
+const getCallArgKey = (entity_prop_name: EntityPropNamesType) => {
+  switch (entity_prop_name) {
     case "questions":
       return "questions_to_yourself";
     case "negative_questions":
@@ -61,8 +63,9 @@ const getCallArgKey = (list_type: ListTypes) => {
   }
 };
 
-const getFileName = (list_type: ListTypes) => {
-  switch (list_type) {
+// Get file name for a given property
+const getFileName = (entity_prop_name: EntityPropNamesType) => {
+  switch (entity_prop_name) {
     case "questions":
       return questionsFileName;
     case "negative_questions":
@@ -82,8 +85,9 @@ const getFileName = (list_type: ListTypes) => {
   }
 };
 
-const getTemplate = (list_type: ListTypes) => {
-  switch (list_type) {
+// Get template for a given property
+const getTemplate = (entity_prop_name: EntityPropNamesType) => {
+  switch (entity_prop_name) {
     case "questions":
       return questionsToYourselfTemplates[0];
     case "negative_questions":
@@ -105,47 +109,79 @@ const getTemplate = (list_type: ListTypes) => {
   }
 };
 
-export const executeChain = async ({ list_type, entity_name }: Types) => {
-  const callArguments = generateCallArguments(entity_name);
+// Evolves a property given to entity (e.g. questions, thoughts, etc.)
+export const evolveEntityPropChain = async ({
+  entity_prop_name,
+  entity_name,
+}: Types) => {
+  const entityPropValues = generateCallArguments(entity_name);
   const entityFolder = `${baseFolder}/${entity_name}`;
-  const callArgKey = getCallArgKey(list_type);
-  const fileName = getFileName(list_type);
+  const callArgKey = getCallArgKey(entity_prop_name);
+  const fileName = getFileName(entity_prop_name);
+  const isNegativeProp = !!entity_prop_name.match(/negative/gi)?.length;
 
-  if (getTemplate(list_type)) {
+  if (getTemplate(entity_prop_name)) {
     const template = PromptTemplate.fromTemplate(
-      getTemplate(list_type) as string
+      getTemplate(entity_prop_name) as string
     );
-
     const chain = new LLMChain({
       llm: model,
       prompt: template,
     });
-    const newItem = (await chain.call(callArguments.callArgs)).text;
-    const thisList = callArguments.lists[callArgKey];
+    const newItem = (await chain.call(entityPropValues.callArgs)).text;
+    const thisList = entityPropValues.lists[callArgKey];
 
+    // Check if item is repeated
     const checkRepeated = await checkRepeatedChain({
       list_type: "questions",
       list: thisList,
       item: newItem,
     });
 
+    // Check if AI created a stupid answer
     const checkAIModelMessage = !!newItem.match(/ai language model/gi)?.length;
 
     if (!checkRepeated && !checkAIModelMessage) {
-      console.log({ [list_type]: newItem });
-      thisList.push(newItem);
-      fs.writeFileSync(
-        `${entityFolder}/${fileName}`,
-        JSON.stringify(thisList, null, 2)
-      );
+      if (isNegativeProp) {
+        const ensureNegative = await ensureNegativeChain({ text: newItem });
+        if (ensureNegative) {
+          console.log("\x1b[32m%s\x1b[0m", "\n Negative Property: ");
+          console.log("\x1b[32m%s\x1b[0m", {
+            [entity_prop_name]: ensureNegative,
+          });
+          thisList.push(ensureNegative);
+          fs.writeFileSync(
+            `${entityFolder}/${fileName}`,
+            JSON.stringify(thisList, null, 2)
+          );
+        } else {
+          console.log(
+            "\x1b[31m%s\x1b[0m",
+            `AI created a stupid answer on ${entity_prop_name}: ${newItem}`
+          );
+        }
+      } else {
+        console.log("\x1b[32m%s\x1b[0m", { [entity_prop_name]: newItem });
+        thisList.push(newItem);
+        fs.writeFileSync(
+          `${entityFolder}/${fileName}`,
+          JSON.stringify(thisList, null, 2)
+        );
+      }
     } else if (checkRepeated && !checkAIModelMessage) {
-      console.log(`Repeated ${list_type}: ${newItem}`);
+      console.log(
+        "\x1b[33m%s\x1b[0m",
+        `Repeated ${entity_prop_name}: ${newItem}`
+      );
     } else {
-      console.log(`AI created a stupid answer on ${list_type}: ${newItem}`);
+      console.log(
+        "\x1b[31m%s\x1b[0m",
+        `AI created a stupid answer on ${entity_prop_name}: ${newItem}`
+      );
     }
 
     return thisList;
   } else {
-    throw new Error(`Template not found for: ${list_type}`);
+    throw new Error(`Template not found for: ${entity_prop_name}`);
   }
 };

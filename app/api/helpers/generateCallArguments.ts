@@ -39,23 +39,26 @@ export const generateCallArguments = (entity_name: string) => {
     fs.readFileSync(`${entityFolder}/${negativeYouAresFileName}`, "utf-8")
   );
 
-  return {callArgs: {
-    you_are: youAres.join("\n"),
-    negative_you_are: negativeYouAres.join("\n"),
-    questions_to_yourself: questions.join("\n"),
-    negative_questions_to_yourself: negativeQuestions.join("\n"),
-    previous_thoughts: thoughts.join("\n"),
-    previous_negative_thoughts: negativeThoughts.join("\n"),
-    goal: goals.at(-1),
-    negative_goal: negativeGoals.at(-1),
-  }, lists: {
-    you_are: youAres,
-    negative_you_are: negativeYouAres,
-    questions_to_yourself: questions,
-    negative_questions_to_yourself: negativeQuestions,
-    previous_thoughts: thoughts,
-    previous_negative_thoughts: negativeThoughts,
-    goal: goals,
-    negative_goal: negativeGoals,
-  }};
+  return {
+    callArgs: {
+      you_are: youAres.join("\n"),
+      negative_you_are: negativeYouAres.join("\n"),
+      questions_to_yourself: questions.join("\n"),
+      negative_questions_to_yourself: negativeQuestions.join("\n"),
+      previous_thoughts: thoughts.join("\n"),
+      previous_negative_thoughts: negativeThoughts.join("\n"),
+      goal: goals.at(-1),
+      negative_goal: negativeGoals.at(-1),
+    },
+    lists: {
+      you_are: youAres,
+      negative_you_are: negativeYouAres,
+      questions_to_yourself: questions,
+      negative_questions_to_yourself: negativeQuestions,
+      previous_thoughts: thoughts,
+      previous_negative_thoughts: negativeThoughts,
+      goal: goals,
+      negative_goal: negativeGoals,
+    },
+  };
 };

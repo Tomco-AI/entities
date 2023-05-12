@@ -1,6 +1,9 @@
 lockfileVersion: '6.0'
 
 dependencies:
+  '@dqbd/tiktoken':
+    specifier: ^1.0.7
+    version: 1.0.7
   '@huggingface/inference':
     specifier: ^2.3.0
     version: 2.3.0

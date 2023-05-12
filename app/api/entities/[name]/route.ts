@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import fs from "fs";
+import { baseFolder } from "@/constants";
 import {
-  baseFolder,
-} from "@/constants";
-import { ListTypes, executeChain } from "../../helpers/executeChain";
+  EntityPropNamesType,
+  evolveEntityPropChain,
+} from "../../helpers/evolveEntityPropChain";
 
 /**
  * Create new entity
@@ -22,7 +23,7 @@ export async function PUT(request: Request, { params }: any) {
     );
   }
 
-  const list_types: ListTypes[] = [
+  const entity_props_names: EntityPropNamesType[] = [
     "questions",
     "negative_questions",
     "thoughts",
@@ -32,17 +33,24 @@ export async function PUT(request: Request, { params }: any) {
     "you_ares",
     "negative_you_ares",
   ];
-  
-  const returnObj: Partial<Record<ListTypes, string[]>> = {};
-  await Promise.all(
-    list_types.map(async (list_type) => {
-      const executorResult = await executeChain({
-        list_type,
-        entity_name: name,
-      });
-      returnObj[list_type] = executorResult;
-    })
-  );
+
+  const returnObj: Partial<Record<EntityPropNamesType, string[]>> = {};
+  // await Promise.all(
+  //   entity_props_names.map(async (entity_prop_name) => {
+  //     const evolveEntityPropResult = await evolveEntityPropChain({
+  //       entity_prop_name,
+  //       entity_name: name,
+  //     });
+  //     returnObj[entity_prop_name] = evolveEntityPropResult;
+  //   })
+  // );
+  for (let entity_prop_name of entity_props_names) {
+    const evolveEntityPropResult = await evolveEntityPropChain({
+      entity_prop_name,
+      entity_name: name,
+    });
+    returnObj[entity_prop_name] = evolveEntityPropResult;
+  }
 
   const response = {
     message: `Entity ${name} updated`,

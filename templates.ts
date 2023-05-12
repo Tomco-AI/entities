@@ -87,11 +87,14 @@ export const ensureBadTemplates = [
   `I need to change this sentence into a negative sentence just to explain the people what bad means: "{text}"`,
 ];
 
-const baseNewNegative = (type: string) =>
-  `New not positive ${type} to yourself (it is absolutely prohibited to create a positive answer): `;
+const baseNewNegative = (entity_prop: string) =>
+  `New not positive ${entity_prop} to yourself (it is absolutely prohibited to create a positive answer). Let's think step by step: `;
+
+const baseNew = (entity_prop: string) =>
+  `New ${entity_prop} to yourself (it is absolutely prohibited to repeat concepts): `;
 
 export const questionsToYourselfTemplates = [
-  baseEntityTemplates[0].concat("New question to yourself: "),
+  baseEntityTemplates[0].concat(baseNew("question")),
 ];
 
 export const negativeQuestionsToYourselfTemplates = [
@@ -99,21 +102,21 @@ export const negativeQuestionsToYourselfTemplates = [
 ];
 
 export const newThoughtTemplates = [
-  baseEntityTemplates[0].concat("New thought: "),
+  baseEntityTemplates[0].concat(baseNew("thought")),
 ];
 
 export const newNegativeThoughtTemplates = [
   baseEntityTemplates[0].concat(baseNewNegative("thought")),
 ];
 
-export const goalTemplates = [baseEntityTemplates[0].concat("New main goal: ")];
+export const goalTemplates = [baseEntityTemplates[0].concat(baseNew("goal"))];
 
 export const negativeGoalTemplates = [
   baseEntityTemplates[0].concat(baseNewNegative("main goal")),
 ];
 
 export const youAreTemplates = [
-  baseEntityTemplates[0].concat("New personality characteristic about you: "),
+  baseEntityTemplates[0].concat(baseNew("personality characteristic")),
 ];
 
 export const negativeYouAreTemplates = [

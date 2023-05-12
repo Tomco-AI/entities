@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@dqbd/tiktoken": "^1.0.7",
     "@huggingface/inference": "^2.3.0",
     "@types/node": "20.1.2",
     "@types/react": "18.2.6",
