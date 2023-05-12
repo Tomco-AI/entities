@@ -1,3 +1,4 @@
+import { Cohere } from "langchain/llms/cohere";
 import { OpenAI } from "langchain/llms/openai";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
 import { Configuration, OpenAIApi } from "openai";

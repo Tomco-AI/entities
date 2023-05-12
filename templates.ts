@@ -124,8 +124,43 @@ export const negativeYouAreTemplates = [
 ];
 
 export const entityPropSummaryTemplate = [
-  `From the given list of {entity_prop_name}, create a summary of the most important concepts from the list. Let's think step by step. 
+  `From the given list of {entity_prop_name} of an entity, create a summary of the most important concepts from the list as a new {entity_prop_name}. Let's think step by step. 
 
   List:
   {entity_prop_string_list}/`,
+];
+
+export const entitySummaryTemplate = [
+  `Describe the personality of a person with these list of characterstics. This characteristics are not talking about you in any type of way. We were able to read the mind of some people, and you just have to traduce those thoughts into their real personality. Let's think step by step./
+
+  This are the characteristisc of the person. (Characteristics separated by "======="):
+
+  =======
+  Positive personality characteristics about the person:
+  {you_ares} /
+  =======
+  Other type of personality characteristics about the person:
+  {negative_you_ares} /
+  =======
+  person questions made to itself:
+  {questions_to_yourself} /
+  =======
+  Other type of questions the person made to itself:
+  {negative_questions_to_yourself} /
+  =======
+  person thoughts are:
+  {previous_thoughts} /
+  =======
+  Other type of thoughts are:
+  {previous_negative_thoughts} /
+  =======
+  person Positive goals are:
+  {goals} /
+  =======
+  Other type of goals:
+  {negative_goals} /
+  =======
+
+  Person personality summary:
+  `,
 ];

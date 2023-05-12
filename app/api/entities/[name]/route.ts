@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import fs from "fs";
-import { baseFolder } from "@/constants";
+import { baseFolder, entity_props_names } from "@/constants";
 import {
   EntityPropNamesType,
   evolveEntityPropChain,
@@ -11,6 +11,28 @@ import {
  */
 export async function PUT(request: Request, { params }: any) {
   const name = params.name;
+  const body = await request.json();
+  let iterations = 1;
+
+  if (body.iterations && body.iterations > 10) {
+    return NextResponse.json(
+      {
+        message: "Iterations limit exceeded",
+      },
+      { status: 400 }
+    );
+  }
+
+  if (typeof body.iterations === "number") {
+    iterations = body.iterations;
+  } else {
+    return NextResponse.json(
+      {
+        message: "Iterations must be a number",
+      },
+      { status: 400 }
+    );
+  }
 
   const existsEntity = fs.existsSync(`${baseFolder}/${name}`);
 
@@ -23,33 +45,17 @@ export async function PUT(request: Request, { params }: any) {
     );
   }
 
-  const entity_props_names: EntityPropNamesType[] = [
-    "questions",
-    "negative_questions",
-    "thoughts",
-    "negative_thoughts",
-    "goals",
-    "negative_goals",
-    "you_ares",
-    "negative_you_ares",
-  ];
-
   const returnObj: Partial<Record<EntityPropNamesType, string[]>> = {};
-  // await Promise.all(
-  //   entity_props_names.map(async (entity_prop_name) => {
-  //     const evolveEntityPropResult = await evolveEntityPropChain({
-  //       entity_prop_name,
-  //       entity_name: name,
-  //     });
-  //     returnObj[entity_prop_name] = evolveEntityPropResult;
-  //   })
-  // );
-  for (let entity_prop_name of entity_props_names) {
-    const evolveEntityPropResult = await evolveEntityPropChain({
-      entity_prop_name,
-      entity_name: name,
-    });
-    returnObj[entity_prop_name] = evolveEntityPropResult;
+
+  for (let i = 0; i < iterations; i++) {
+    console.log("\x1b[35m%s\x1b[0m", `\n\nIteration ${i + 1} of ${iterations}\n\n`);
+    for (let entity_prop_name of entity_props_names) {
+      const evolveEntityPropResult = await evolveEntityPropChain({
+        entity_prop_name,
+        entity_name: name,
+      });
+      returnObj[entity_prop_name] = evolveEntityPropResult;
+    }
   }
 
   const response = {
