@@ -1,6 +1,7 @@
 import { model } from "@/config";
 import {
   baseFolder,
+  entityPropsMaxTokens,
   goalsFileName,
   negativeGoalsFileName,
   negativeQuestionsFileName,
@@ -26,6 +27,8 @@ import { LLMChain, PromptTemplate } from "langchain";
 import { generateCallArguments } from "./generateCallArguments";
 import { checkRepeatedChain } from "./checkRepeatedChain";
 import { ensureNegativeChain } from "./ensureNegativeChain";
+import { getTokensAmount } from "@/deprecated-to-start/getTokens";
+import { entityPropSummaryChain } from "./entityPropSummaryChain";
 
 export type EntityPropNamesType =
   | "questions"
@@ -109,7 +112,26 @@ const getTemplate = (entity_prop_name: EntityPropNamesType) => {
   }
 };
 
-const getNiceName = (entity_prop_name: EntityPropNamesType) => {}
+const getNiceName = (entity_prop_name: EntityPropNamesType) => {
+  switch (entity_prop_name) {
+    case "questions":
+      return "questions";
+    case "negative_questions":
+      return "negative questions";
+    case "thoughts":
+      return "thoughts";
+    case "negative_thoughts":
+      return "negative thoughts";
+    case "goals":
+      return "goals";
+    case "negative_goals":
+      return "negative goals";
+    case "you_ares":
+      return "personality characteristics";
+    case "negative_you_ares":
+      return "negative personality characteristics";
+  }
+};
 
 // Evolves a property given to entity (e.g. questions, thoughts, etc.)
 export const evolveEntityPropChain = async ({
@@ -121,6 +143,33 @@ export const evolveEntityPropChain = async ({
   const callArgKey = getCallArgKey(entity_prop_name);
   const fileName = getFileName(entity_prop_name);
   const isNegativeProp = !!entity_prop_name.match(/negative/gi)?.length;
+  const entity_prop_nice_name = getNiceName(entity_prop_name);
+  const thisStringList = entityPropValues.callArgs[callArgKey];
+
+  // Check entity prop list tokens
+  if (thisStringList) {
+    if (thisStringList.length / 4 > entityPropsMaxTokens) {
+      const stringListTokens = await getTokensAmount({
+        prompt: thisStringList,
+        modelName: model.modelName,
+      });
+      if (stringListTokens > entityPropsMaxTokens) {
+        const listSummary = await entityPropSummaryChain({
+          entity_prop_string_list: thisStringList,
+          entity_prop_name: entity_prop_nice_name,
+        });
+
+        if (listSummary) {
+          // Replace the list with the summary
+          fs.writeFileSync(
+            `${entityFolder}/${fileName}`,
+            JSON.stringify([listSummary], null, 2)
+          );
+          entityPropValues.lists[callArgKey] = [listSummary];
+        }
+      }
+    }
+  }
 
   if (getTemplate(entity_prop_name)) {
     const template = PromptTemplate.fromTemplate(
@@ -147,7 +196,7 @@ export const evolveEntityPropChain = async ({
       if (isNegativeProp) {
         const ensureNegative = await ensureNegativeChain({ text: newItem });
         if (ensureNegative) {
-          console.log("\x1b[32m%s\x1b[0m", "\n Negative Property: ");
+          console.log("\x1b[41m%s\x1b[0m", "\n Negative Property: ");
           console.log("\x1b[32m%s\x1b[0m", {
             [entity_prop_name]: ensureNegative,
           });
