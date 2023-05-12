@@ -109,6 +109,8 @@ const getTemplate = (entity_prop_name: EntityPropNamesType) => {
   }
 };
 
+const getNiceName = (entity_prop_name: EntityPropNamesType) => {}
+
 // Evolves a property given to entity (e.g. questions, thoughts, etc.)
 export const evolveEntityPropChain = async ({
   entity_prop_name,
