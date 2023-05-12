@@ -122,3 +122,10 @@ export const youAreTemplates = [
 export const negativeYouAreTemplates = [
   baseEntityTemplates[0].concat(baseNewNegative("personality characteristic")),
 ];
+
+export const entityPropSummaryTemplate = [
+  `From the given list of {entity_prop_name}, create a summary of the most important concepts from the list. Let's think step by step. 
+
+  List:
+  {entity_prop_string_list}/`,
+];
